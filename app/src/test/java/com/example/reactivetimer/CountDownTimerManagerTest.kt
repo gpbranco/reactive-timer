@@ -4,6 +4,7 @@ import com.nhaarman.mockito_kotlin.mock
 import io.reactivex.BackpressureStrategy
 import io.reactivex.observers.TestObserver
 import io.reactivex.subjects.PublishSubject
+import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
 import org.mockito.BDDMockito.*
@@ -58,7 +59,8 @@ class CountDownTimerManagerTest {
     fun `adds more time`() {
         val tenSecondsPassed = 10000L
         val addFiveSeconds = 5000L
-        val expectedTime = TimeUnit.MINUTES.toMillis(TOTAL_IN_MINUTES) - tenSecondsPassed + addFiveSeconds - ONE_SECOND_IN_MILLISECONDS
+        val expectedTime =
+            TimeUnit.MINUTES.toMillis(TOTAL_IN_MINUTES) - tenSecondsPassed + addFiveSeconds - ONE_SECOND_IN_MILLISECONDS
 
         val testObserver = manager.currentTime.test()
 
@@ -73,7 +75,7 @@ class CountDownTimerManagerTest {
         testObserver.assertLast(expectedTime)
     }
 
-    private fun TestObserver<Long>.assertLast(value: Long): Boolean {
-        return this.values().last() == value
+    private fun TestObserver<Long>.assertLast(expected: Long) {
+        Assert.assertEquals(expected, this.values().last())
     }
 }

@@ -19,8 +19,8 @@ class CountDownTimerPresenter {
     }
 
     private fun formatString(minutes: Long, seconds: Long, milliSeconds: Long): String {
-        val minutes = if (minutes > 0) "$minutes:" else ""
-        return "$minutes${seconds % 60 }:${(milliSeconds % 1000) / 100 }"
+        val minutesAsString = if (minutes > 0) "$minutes:" else ""
+        return "$minutesAsString${seconds % 60 }:${(milliSeconds % 1000) / 100 }"
     }
 
     private fun Long.toMinutes(): Long {
