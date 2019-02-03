@@ -6,7 +6,10 @@ import io.reactivex.rxkotlin.addTo
 import io.reactivex.subjects.BehaviorSubject
 import java.util.concurrent.TimeUnit
 
-class CountDownTimerManager(totalInMinutes: Long, private val countDownTimer: CountDownTimer): ViewModel() {
+class CountDownTimerManager(
+    totalInMinutes: Long,
+    private val countDownTimer: CountDownTimer
+) : ViewModel() {
 
     companion object {
         const val TICK_DEFAULT = 100L
@@ -19,16 +22,17 @@ class CountDownTimerManager(totalInMinutes: Long, private val countDownTimer: Co
     var compositeDisposable = CompositeDisposable()
 
     fun start() {
-        countDownTimer.stream
-            .repeatUntil {
-                remainingTime < 0
-            }
-            .subscribe {
+        dispose().also {
+            countDownTimer.stream
+                .takeWhile { remainingTime > 0 }
+                .subscribe { tick ->
 
-                remainingTime -= it
-                currentTime.onNext(remainingTime)
+                    remainingTime -= tick
+                    currentTime.onNext(remainingTime)
 
-            }.addTo(compositeDisposable)
+                }
+                .addTo(compositeDisposable)
+        }
     }
 
     fun moreTime(add: Int = 10) {
@@ -37,10 +41,17 @@ class CountDownTimerManager(totalInMinutes: Long, private val countDownTimer: Co
         else remainingTime + plusMilliSeconds
     }
 
-    override fun onCleared() {
+    private fun dispose() {
         if (!compositeDisposable.isDisposed) {
             compositeDisposable.dispose()
         }
+        compositeDisposable = CompositeDisposable()
+        remainingTime = totalInMilliSeconds
+        currentTime.onNext(remainingTime)
+    }
+
+    override fun onCleared() {
+        dispose()
         super.onCleared()
     }
 }

@@ -5,6 +5,10 @@ import androidx.lifecycle.ViewModelProvider
 
 class CountDownTimerFactory: ViewModelProvider.Factory {
 
+    companion object {
+        const val TOTAL_IN_MINUTES = 2L
+    }
+
     override fun <T : ViewModel?> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(CountDownTimerManager::class.java)) {
             return manager as T
@@ -12,7 +16,11 @@ class CountDownTimerFactory: ViewModelProvider.Factory {
         throw IllegalArgumentException("Unknown ViewModel class")
     }
 
+    val presenter by lazy {
+        CountDownTimerPresenter(TOTAL_IN_MINUTES)
+    }
+
     private val manager by lazy {
-        CountDownTimerManager(2, CountDownTimerRx(tick = CountDownTimerManager.TICK_DEFAULT))
+        CountDownTimerManager(TOTAL_IN_MINUTES, CountDownTimerRx(tick = CountDownTimerManager.TICK_DEFAULT))
     }
 }

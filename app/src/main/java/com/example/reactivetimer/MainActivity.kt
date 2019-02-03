@@ -2,6 +2,7 @@ package com.example.reactivetimer
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.View
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProviders
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -12,13 +13,14 @@ import kotlinx.android.synthetic.main.activity_main.*
 class MainActivity : AppCompatActivity() {
 
     private val compositeDisposable = CompositeDisposable()
-    private val presenter = CountDownTimerPresenter()
+    private lateinit var presenter: CountDownTimerPresenter
+    private lateinit var countDownTimerManager: CountDownTimerManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        val countDownTimerManager = countDownTimerManager()
+        injectDependencies()
 
         countDownTimerManager.currentTime
             .map { presenter.format(it) }
@@ -37,20 +39,25 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun countDownTimerManager(): CountDownTimerManager {
-        return ViewModelProviders.of(
-            this,
-            CountDownTimerFactory()
-        ).get(CountDownTimerManager::class.java)
+    private fun injectDependencies() {
+        CountDownTimerFactory().also {
+            countDownTimerManager = ViewModelProviders.of(this, it).get(CountDownTimerManager::class.java)
+            presenter = it.presenter
+        }
     }
 
     private fun showRemainingTime(viewModel: CurrentTimeViewModel) {
         remainingTime.text = viewModel.currentTime
+        startButton.visibility = View.GONE
 
         when (viewModel) {
             is CurrentTimeViewModel.Warning -> content.setBackgroundColor(ContextCompat.getColor(this, R.color.colorWarning))
             is CurrentTimeViewModel.Danger -> content.setBackgroundColor(ContextCompat.getColor(this, R.color.colorDanger))
-            else -> content.setBackgroundColor(ContextCompat.getColor(this, R.color.colorPrimaryDark))
+            is CurrentTimeViewModel.Normal -> content.setBackgroundColor(ContextCompat.getColor(this, R.color.colorPrimary))
+            is CurrentTimeViewModel.Ready, is CurrentTimeViewModel.Done -> {
+                startButton.visibility = View.VISIBLE
+                content.setBackgroundColor(ContextCompat.getColor(this, R.color.colorPrimary))
+            }
         }
     }
 }

@@ -49,8 +49,7 @@ class CountDownTimerManagerTest {
 
         producer.onNext(ONE_SECOND_IN_MILLISECONDS)
 
-        testObserver.assertValueCount(2)
-        testObserver.assertValueAt(1) {
+        testObserver.assertValueAt(2) {
             it < TimeUnit.MINUTES.toMillis(TOTAL_IN_MINUTES)
         }
     }
@@ -73,6 +72,19 @@ class CountDownTimerManagerTest {
         producer.onNext(ONE_SECOND_IN_MILLISECONDS)
 
         testObserver.assertLast(expectedTime)
+    }
+
+    @Test
+    fun `should be able to restart timer`() {
+        val testObserver = manager.currentTime.test()
+
+        manager.start()
+
+        producer.onNext(ONE_SECOND_IN_MILLISECONDS * 10)
+
+        manager.start()
+
+        testObserver.assertLast(TimeUnit.MINUTES.toMillis(TOTAL_IN_MINUTES))
     }
 
     private fun TestObserver<Long>.assertLast(expected: Long) {

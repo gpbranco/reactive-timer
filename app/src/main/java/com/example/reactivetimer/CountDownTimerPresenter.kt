@@ -2,7 +2,7 @@ package com.example.reactivetimer
 
 import java.util.concurrent.TimeUnit
 
-class CountDownTimerPresenter {
+class CountDownTimerPresenter(private val total: Long) {
 
     fun format(timeInMilliseconds: Long): CurrentTimeViewModel {
         val minutes = timeInMilliseconds.toMinutes()
@@ -11,6 +11,7 @@ class CountDownTimerPresenter {
         val formattedTime = formatString(minutes, seconds, timeInMilliseconds)
 
         return when {
+            timeInMilliseconds == TimeUnit.MINUTES.toMillis(total) -> CurrentTimeViewModel.Ready(formattedTime)
             timeInMilliseconds <= 0 -> CurrentTimeViewModel.Done("Done!")
             seconds < 10 -> CurrentTimeViewModel.Danger(formattedTime)
             seconds < 30 -> CurrentTimeViewModel.Warning(formattedTime)

@@ -3,14 +3,19 @@ package com.example.reactivetimer
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
+import java.util.concurrent.TimeUnit
 
 class CountDownTimerPresenterTest {
+
+    companion object {
+        private const val TOTAL = 2L
+    }
 
     private lateinit var presenterCountDown: CountDownTimerPresenter
 
     @Before
     fun setup() {
-        presenterCountDown = CountDownTimerPresenter()
+        presenterCountDown = CountDownTimerPresenter(TOTAL)
     }
 
     @Test
@@ -77,11 +82,20 @@ class CountDownTimerPresenterTest {
     }
 
     @Test
-    fun `returns state as Done`(){
+    fun `returns state as Done`() {
         val timeInMilliseconds = 0L
 
         val viewModel = presenterCountDown.format(timeInMilliseconds)
 
         assertTrue("viewModel is not CurrentTimeViewModel.Done", viewModel is CurrentTimeViewModel.Done)
+    }
+
+    @Test
+    fun `returns state as Ready`() {
+        val timeInMilliseconds = TimeUnit.MINUTES.toMillis(TOTAL)
+
+        val viewModel = presenterCountDown.format(timeInMilliseconds)
+
+        assertTrue("viewModel is not CurrentTimeViewModel.Ready", viewModel is CurrentTimeViewModel.Ready)
     }
 }
